@@ -1,39 +1,30 @@
-name: Push from RepoC/main to RepoD/main
+name: Push to another repo
 
 on:
   push:
     branches:
-      - main
+      - main  # Puedes cambiar 'main' a la rama que desees monitorear
 
 jobs:
-  push_to_dev:
+  push_to_other_repo:
     runs-on: ubuntu-latest
 
     steps:
-    # Paso 1: Checkout del código de la rama 'main' del repositorio RepoC
-    - name: Checkout RepoC main branch
-      uses: actions/checkout@v2
-      with:
-        ref: main
+    - name: Checkout source code
+      uses: actions/checkout@v2  # Hace checkout del código del repositorio actual
 
-    # Paso 2: Configurar Git
     - name: Set up Git
       run: |
         git config --global user.name "GitHub Action"
         git config --global user.email "action@github.com"
 
-    # Paso 3: Clonar el repositorio MAIN y la rama 'DEV'
-    - name: Clone main repository main branch
+    - name: Push to another repository
       env:
-        TARGET_REPO_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
+        TARGET_REPO_TOKEN: ${{ secrets.BACK_SECRET }}  # Este es el token que agregaste en los secretos
       run: |
-        git clone --branch main https://x-access-token:${TARGET_REPO_TOKEN}@github.com/your-username/MAIN_PROYFIAFIT.git target-repo
-
-    # Paso 4: Sincronizar los cambios de la rama 'main' del repositorio FRONT a la rama 'DEV' del repositorio MAIN
-    - name: Sync changes to main/main branch
-      run: |
+        git clone --branch target-branch https://x-access-token:${{ secrets.token_back }}@github.com/gonzalo1998peru/RepoD.git target-repo
         rsync -av --exclude='.git' ./ target-repo/
-        cd target-repo
+        cd RepoD
         git add .
-        git commit -m "Auto-sync from RepoC/main"
-        git push origin main
+        git commit -m "Automated update from RepoC to RepoD"
+        git push origin target-branch
